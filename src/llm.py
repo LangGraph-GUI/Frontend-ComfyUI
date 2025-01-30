@@ -21,6 +21,7 @@ def clip_history(history: str, max_chars: int = 16000) -> str:
 
 def get_llm(llm_model, api_key):
 
+    # openai case
     if "gpt" in llm_model.lower():  # If the llm contains 'gpt', use ChatOpenAI
         from langchain_community.chat_models import ChatOpenAI
         os.environ["OPENAI_API_KEY"] = api_key
@@ -28,26 +29,24 @@ def get_llm(llm_model, api_key):
         flush_print("Using gpt-4o-mini")
 
         return llm
+    # cannot work now, need langchain fix error
+    if "google" in llm_model.lower():
+        flush_print("no suport google LLM")
+        return None        
 
-
-    if "gemma2" in llm_model.lower():
+    # ollama case
+    if llm_model:
         from langchain_ollama import ChatOllama
         ollama_base_url = os.environ.get("OLLAMA_BASE_URL", "http://ollama:11434")  # Default value if envvar is not set
         llm = ChatOllama(
-            model="gemma2",
+            model=llm_model,
             base_url=ollama_base_url,
             format="json",
             temperature=0)
 
-        flush_print("Using gemma2")
+        flush_print(f"Using {llm_model}")
         return llm
 
-    
-    # cannot work now, need langchain fix error
-    if "google" in llm_model.lower():
-        return None
-
-    flush_print("no suport LLM")
 
 
 def ChatBot(llm, question):
